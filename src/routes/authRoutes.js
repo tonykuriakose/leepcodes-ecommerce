@@ -6,10 +6,9 @@ import { validationRules, handleValidationErrors } from '../middleware/validatio
 
 const router = express.Router();
 
-// Public routes
+
 router.post('/register', validationRules.userRegister, handleValidationErrors, register);
 router.post('/login', validationRules.userLogin, handleValidationErrors, login);
-
 // Protected routes
 router.get('/profile', authenticateToken, getProfile);
 router.post('/logout', authenticateToken, logout);

@@ -37,13 +37,19 @@ npm install
 
 Create a `.env` file in the root directory and add the following:
 
-PORT=5000
-DATABASE_URL=postgres://your_postgres_user:your_password@localhost:5432/your_database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=9061
+DB_NAME=product_cart_db
 JWT_SECRET=mySecret
+JWT_EXPIRES_IN=7d
+PORT=5000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
 
 
 ### 4. Run migrations
-
 
 npm run typeorm migration:run
 
@@ -51,29 +57,15 @@ npm run typeorm migration:run
 
 npm run dev
 
-
 The backend will be running at `http://localhost:5000`.
 
-## 📂 Folder Structure
 
-.
-├── controllers
-├── middleware
-├── models
-├── routes
-├── utils
-├── config
-└── index.js
-```
-
----
-
-## 📄 API Documentation
+## API Documentation
 
 * API documentation is available in the `API_DOC.md` file.
 
 
-## 🧑‍🤝 Roles & Permissions
+##  Roles & Permissions
 
 | Role       | Permissions                                          |
 | ---------- | ---------------------------------------------------- |

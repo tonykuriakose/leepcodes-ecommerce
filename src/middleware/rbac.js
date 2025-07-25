@@ -1,4 +1,3 @@
-// Role-Based Access Control Middleware
 
 // Check if user has required role
 export const requireRole = (allowedRoles) => {
@@ -24,7 +23,6 @@ export const requireRole = (allowedRoles) => {
 
 // Specific permission checks
 export const permissions = {
-  // Only superadmin can delete products
   canDeleteProduct: (req, res, next) => {
     if (req.user.role !== 'superadmin') {
       return res.status(403).json({
@@ -35,7 +33,6 @@ export const permissions = {
     next();
   },
 
-  // Only superadmin can create admin users
   canCreateAdmin: (req, res, next) => {
     if (req.user.role !== 'superadmin') {
       return res.status(403).json({
@@ -46,7 +43,7 @@ export const permissions = {
     next();
   },
 
-  // Both superadmin and admin can manage products (except delete)
+
   canManageProducts: (req, res, next) => {
     if (!['superadmin', 'admin'].includes(req.user.role)) {
       return res.status(403).json({
@@ -57,7 +54,7 @@ export const permissions = {
     next();
   },
 
-  // Only superadmin can view all user carts
+  
   canViewAllCarts: (req, res, next) => {
     if (req.user.role !== 'superadmin') {
       return res.status(403).json({

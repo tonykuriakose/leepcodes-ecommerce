@@ -1,5 +1,3 @@
--- Database Setup Script for Windows
--- Save this as setup.sql in your backend folder
 
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (

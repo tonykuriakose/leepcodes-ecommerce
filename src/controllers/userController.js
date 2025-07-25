@@ -32,7 +32,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Get user by ID (superadmin only)
+// Get user by ID 
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,22 +53,19 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Create admin user (superadmin only)
+// Create admin user 
 export const createAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     const userRepository = AppDataSource.getRepository(User);
 
-    // Check if user exists
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create admin user
     const user = userRepository.create({
       email,
       password: hashedPassword,
@@ -76,7 +73,6 @@ export const createAdmin = async (req, res) => {
     });
     const savedUser = await userRepository.save(user);
 
-    // Create cart for admin
     const cartRepository = AppDataSource.getRepository(Cart);
     const cart = cartRepository.create({ user_id: savedUser.id });
     await cartRepository.save(cart);
@@ -94,14 +90,13 @@ export const createAdmin = async (req, res) => {
   }
 };
 
-// Update user role (superadmin only)
+// Update user role 
 export const updateUserRole = async (req, res) => {
   try {
     const { id } = req.params;
     const { role } = req.body;
     const userRepository = AppDataSource.getRepository(User);
 
-    // Validate role
     if (!['superadmin', 'admin'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role' });
     }
@@ -111,7 +106,6 @@ export const updateUserRole = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Prevent changing own role
     if (parseInt(id) === req.user.id) {
       return res.status(400).json({ message: 'Cannot change your own role' });
     }
@@ -123,7 +117,7 @@ export const updateUserRole = async (req, res) => {
   }
 };
 
-// Delete user (superadmin only)
+// Delete user 
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -134,12 +128,10 @@ export const deleteUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Prevent deleting own account
     if (parseInt(id) === req.user.id) {
       return res.status(400).json({ message: 'Cannot delete your own account' });
     }
 
-    // Prevent deleting superadmins
     if (user.role === 'superadmin') {
       return res.status(400).json({ message: 'Cannot delete superadmin users' });
     }
@@ -156,8 +148,6 @@ export const updateProfile = async (req, res) => {
   try {
     const { email } = req.body;
     const userRepository = AppDataSource.getRepository(User);
-
-    // Check email uniqueness
     if (email) {
       const existingUser = await userRepository.findOne({ where: { email } });
       if (existingUser && existingUser.id !== req.user.id) {
@@ -178,7 +168,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// Get user stats (superadmin only)
+// Get user stats 
 export const getUserStats = async (req, res) => {
   try {
     const userRepository = AppDataSource.getRepository(User);
@@ -204,7 +194,7 @@ export const getUserStats = async (req, res) => {
   }
 };
 
-// Search users (superadmin only)
+// Search users 
 export const searchUsers = async (req, res) => {
   try {
     const { q, role, page = 1, limit = 10 } = req.query;

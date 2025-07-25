@@ -51,8 +51,6 @@ export const createProduct = async (req, res) => {
   try {
     const { name, description, price, stock, image_url } = req.body;
     const productRepository = AppDataSource.getRepository(Product);
-
-    // Check if product exists
     const existingProduct = await productRepository.findOne({ where: { name } });
     if (existingProduct) {
       return res.status(400).json({ message: 'Product with this name already exists' });
@@ -85,7 +83,6 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Check name uniqueness if updating name
     if (updateData.name && updateData.name !== product.name) {
       const existingProduct = await productRepository.findOne({ where: { name: updateData.name } });
       if (existingProduct) {

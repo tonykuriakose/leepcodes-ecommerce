@@ -9,21 +9,18 @@ export const getCart = async (req, res) => {
     const cartRepository = AppDataSource.getRepository(Cart);
     const cartItemRepository = AppDataSource.getRepository(CartItem);
 
-    // Find or create cart
     let cart = await cartRepository.findOne({ where: { user_id: req.user.id } });
     if (!cart) {
       cart = cartRepository.create({ user_id: req.user.id });
       cart = await cartRepository.save(cart);
     }
 
-    // Get cart items with products
     const cartItems = await cartItemRepository
       .createQueryBuilder('cartItem')
       .leftJoinAndSelect('cartItem.product', 'product')
       .where('cartItem.cart_id = :cartId', { cartId: cart.id })
       .getMany();
 
-    // Calculate totals
     const totalAmount = cartItems.reduce((total, item) => {
       return total + (parseFloat(item.product.price) * item.quantity);
     }, 0);
@@ -51,7 +48,6 @@ export const getCart = async (req, res) => {
   }
 };
 
-// Add item to cart
 export const addToCart = async (req, res) => {
   try {
     const { product_id, quantity } = req.body;
@@ -59,7 +55,6 @@ export const addToCart = async (req, res) => {
     const cartItemRepository = AppDataSource.getRepository(CartItem);
     const productRepository = AppDataSource.getRepository(Product);
 
-    // Check product exists and stock
     const product = await productRepository.findOne({ where: { id: product_id } });
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -69,21 +64,18 @@ export const addToCart = async (req, res) => {
       return res.status(400).json({ message: 'Insufficient stock' });
     }
 
-    // Find or create cart
     let cart = await cartRepository.findOne({ where: { user_id: req.user.id } });
     if (!cart) {
       cart = cartRepository.create({ user_id: req.user.id });
       cart = await cartRepository.save(cart);
     }
 
-    // Check if item exists in cart
     const existingItem = await cartItemRepository.findOne({
       where: { cart_id: cart.id, product_id: product_id }
     });
 
     let cartItem;
     if (existingItem) {
-      // Update quantity
       const newQuantity = existingItem.quantity + quantity;
       if (product.stock < newQuantity) {
         return res.status(400).json({ message: 'Insufficient stock for total quantity' });
@@ -92,7 +84,6 @@ export const addToCart = async (req, res) => {
       await cartItemRepository.update(existingItem.id, { quantity: newQuantity });
       cartItem = await cartItemRepository.findOne({ where: { id: existingItem.id } });
     } else {
-      // Create new item
       cartItem = cartItemRepository.create({
         cart_id: cart.id,
         product_id: product_id,
@@ -113,8 +104,6 @@ export const updateCartItem = async (req, res) => {
     const { itemId } = req.params;
     const { quantity } = req.body;
     const cartItemRepository = AppDataSource.getRepository(CartItem);
-
-    // Find cart item and verify ownership
     const cartItem = await cartItemRepository
       .createQueryBuilder('cartItem')
       .leftJoin('cartItem.cart', 'cart')
@@ -143,8 +132,6 @@ export const removeCartItem = async (req, res) => {
   try {
     const { itemId } = req.params;
     const cartItemRepository = AppDataSource.getRepository(CartItem);
-
-    // Verify ownership
     const cartItem = await cartItemRepository
       .createQueryBuilder('cartItem')
       .leftJoin('cartItem.cart', 'cart')
@@ -181,7 +168,7 @@ export const clearCart = async (req, res) => {
   }
 };
 
-// Get all carts (superadmin only)
+// Get all carts
 export const getAllCarts = async (req, res) => {
   try {
     const cartRepository = AppDataSource.getRepository(Cart);
