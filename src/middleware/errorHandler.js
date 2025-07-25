@@ -1,4 +1,4 @@
-// Global Error Handler Middleware
+
 
 export const errorHandler = (err, req, res, next) => {
   let error = { ...err };

@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { DataSource } from 'typeorm';
+import { AppDataSource } from '../config/database.js'; 
 import User from '../entities/User.js';
-
 
 export const authenticateToken = async (req, res, next) => {
   try {
@@ -9,6 +8,7 @@ export const authenticateToken = async (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
+      console.log('No token provided');
       return res.status(401).json({
         success: false,
         message: 'Access token required'
@@ -17,9 +17,9 @@ export const authenticateToken = async (req, res, next) => {
 
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    
-    const userRepository = DataSource.getRepository(User);
+
+  
+    const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOne({ where: { id: decoded.userId } });
 
     if (!user) {
@@ -29,6 +29,7 @@ export const authenticateToken = async (req, res, next) => {
       });
     }
 
+   
     
     req.user = {
       id: user.id,
@@ -38,6 +39,8 @@ export const authenticateToken = async (req, res, next) => {
 
     next();
   } catch (error) {
+ 
+    
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
